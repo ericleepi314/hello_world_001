@@ -1,6 +1,13 @@
 # hello_world_001
 
-A minimal "Hello, World!" app built with React and Vite.
+A simple Snake game built with React and Vite.
+
+## How to play
+
+- **Arrow keys** or **WASD** to steer (on touch screens, swipe or use the on-screen pad)
+- **Space** / **Enter** to start, pause, resume, or play again
+- Eat the red food to grow and score; the snake speeds up as your score climbs
+- Hitting a wall or yourself ends the game. Your best score is saved in the browser
 
 ## Requirements
 
@@ -28,7 +35,8 @@ Then open the URL printed in the terminal (default http://localhost:5173).
 ```
 index.html        Entry HTML, mounts #root
 src/main.jsx      React root, renders <App />
-src/App.jsx       The Hello World component (with a click counter)
+src/App.jsx       Game UI: canvas rendering, input, game loop, scores
+src/snake.js      Pure game logic (movement, collisions, food)
 src/index.css     Styles, light + dark
 vite.config.js    Vite + React plugin config
 ```
