@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Mock answer engine</title>
+<style>
+  body { font-family: sans-serif; margin: 2rem; }
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: flex; align-items: center; justify-content: center; }
+  .overlay > div { background: #fff; padding: 2rem; }
+  [contenteditable], textarea { border: 1px solid #888; min-height: 2rem; min-width: 30rem; padding: .5rem; display: block; }
+</style>
+</head>
+<body>
+<!--
+  Offline stand-in for chatgpt.com / gemini.google.com / perplexity.ai used by
+  `run_batch.py --mock`. It reproduces only the hooks ask_engine.py relies on:
+  the composer, send/stop buttons, streamed answer container, cookie banner,
+  logged-out nag, and (with ?wall=login|challenge) a sign-in wall or bot check.
+-->
+<div id="app"></div>
+<script>
+const p = new URLSearchParams(location.search);
+const engine = p.get('engine') || 'chatgpt';
+const wall = p.get('wall');
+const app = document.getElementById('app');
+
+const ANSWER = q => `Mock ${engine} answer for: "${q}"\n\nClawcodex differentiators (mock): token-efficient context handling, ` +
+  `30+ LLM providers, and a Python rebuild of the Claude Code workflow. Compared with Aider and OpenHands it ...`;
+
+function overlay(html) {
+  const o = document.createElement('div');
+  o.className = 'overlay';
+  o.innerHTML = `<div>${html}</div>`;
+  document.body.appendChild(o);
+  o.querySelectorAll('button, a').forEach(b => b.addEventListener('click', e => { e.preventDefault(); o.remove(); }));
+  return o;
+}
+
+function stream(container, busyHtml, text, onDone) {
+  const busy = document.createElement('div');
+  busy.innerHTML = busyHtml;
+  document.body.appendChild(busy);
+  let i = 0;
+  const t = setInterval(() => {
+    i += 12;
+    container.innerText = text.slice(0, i);
+    if (i >= text.length) {
+      clearInterval(t);
+      busy.remove();
+      onDone && onDone();
+    }
+  }, 150);
+}
+
+if (wall === 'login') {
+  app.innerHTML = '<h1>Sign in to continue</h1><button>Sign in</button>';
+} else if (wall === 'challenge') {
+  app.innerHTML = '<h1>Just a moment...</h1><p>Verify you are human</p>';
+} else {
+  setTimeout(() => overlay('We use cookies. <button>Accept all</button>'), 300);
+  if (engine === 'chatgpt') {
+    app.innerHTML = '<div id="thread"></div><div id="prompt-textarea" class="ProseMirror" contenteditable="true"></div>' +
+      '<button data-testid="send-button" id="composer-submit-button">Send</button>';
+  } else if (engine === 'gemini') {
+    app.innerHTML = '<div id="thread"></div><rich-textarea><div class="ql-editor" contenteditable="true" role="textbox"></div></rich-textarea>' +
+      '<button aria-label="Send message" class="send-button">Send</button>';
+  } else {
+    app.innerHTML = '<div id="thread"></div><div id="ask-input" contenteditable="true" role="textbox"></div>' +
+      '<button aria-label="Submit">Submit</button><div id="sources"></div>';
+  }
+  const input = app.querySelector('[contenteditable]');
+  const send = app.querySelector('button');
+  const thread = document.getElementById('thread');
+  let n = 0;
+  function submit() {
+    const q = input.innerText.trim();
+    if (!q) return;
+    input.innerText = '';
+    n++;
+    const user = document.createElement('div');
+    let ans;
+    if (engine === 'chatgpt') {
+      user.setAttribute('data-message-author-role', 'user');
+      user.innerText = q;
+      ans = document.createElement('div');
+      ans.setAttribute('data-message-author-role', 'assistant');
+      thread.append(user, ans);
+      stream(ans, '<button data-testid="stop-button">Stop</button>', ANSWER(q), () => {
+        ans.insertAdjacentHTML('beforeend', ' <a href="https://github.com/example/clawcodex">github.com</a>');
+        setTimeout(() => overlay('Thanks for trying ChatGPT <a href="#">Stay logged out</a>'), 200);
+      });
+    } else if (engine === 'gemini') {
+      user.innerText = q;
+      const mr = document.createElement('model-response');
+      mr.innerHTML = '<message-content><div class="markdown"></div></message-content>';
+      thread.append(user, mr);
+      ans = mr.querySelector('.markdown');
+      stream(ans, '<button aria-label="Stop response">Stop</button>', ANSWER(q));
+    } else {
+      user.innerText = q;
+      ans = document.createElement('div');
+      ans.id = 'markdown-content-' + n;
+      ans.className = 'prose';
+      thread.append(user, ans);
+      stream(ans, '<button aria-label="Stop">Stop</button>', ANSWER(q), () => {
+        document.getElementById('sources').innerHTML =
+          '<a href="https://pypi.org/project/clawcodex/">pypi.org</a> <a href="https://www.reddit.com/r/LocalLLaMA/">reddit</a>';
+      });
+    }
+  }
+  send.addEventListener('click', submit);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit(); } });
+}
+</script>
+</body>
+</html>

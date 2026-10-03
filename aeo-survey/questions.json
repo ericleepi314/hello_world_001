@@ -1,0 +1,44 @@
+{
+  "product": "Clawcodex",
+  "product_description": "Clawcodex is an open-source, token-efficient Python terminal coding agent and rebuild of Claude Code that supports 30+ LLM providers.",
+  "base_question": "What are the competitive advantages of Clawcodex compared to other Python-based coding agents?",
+  "engines": ["chatgpt", "gemini", "perplexity"],
+  "agents": [
+    {
+      "id": "A",
+      "angle": "Direct head-to-head comparison",
+      "variants": [
+        {"id": "A1", "question": "What are the competitive advantages of Clawcodex compared to other Python-based coding agents?"},
+        {"id": "A2", "question": "How does Clawcodex compare to Aider, OpenHands, and other open-source Python coding agents? What does it do better?"},
+        {"id": "A3", "question": "Clawcodex vs other Python terminal coding agents: what are the key differentiators?"}
+      ]
+    },
+    {
+      "id": "B",
+      "angle": "Recommendation / buyer intent (includes one unbranded query)",
+      "variants": [
+        {"id": "B1", "question": "I want an open-source, Python-based terminal coding agent like Claude Code that works with many LLM providers. Why would I choose Clawcodex over the alternatives?"},
+        {"id": "B2", "question": "What is the best open-source Python coding agent for the terminal that supports 30+ LLM providers, and how does Clawcodex stack up?"},
+        {"id": "B3", "question": "Which open-source Python coding agents are the best alternatives to Claude Code, and what are the strengths of each?", "unbranded": true}
+      ]
+    },
+    {
+      "id": "C",
+      "angle": "Feature-specific claims (token efficiency, Claude Code rebuild, multi-provider)",
+      "variants": [
+        {"id": "C1", "question": "Is Clawcodex more token-efficient than other Python coding agents like Aider or OpenHands? What makes it efficient?"},
+        {"id": "C2", "question": "What are the benefits of Clawcodex being an open-source Python rebuild of Claude Code, compared with using Claude Code itself or other coding agents?"},
+        {"id": "C3", "question": "How does Clawcodex's support for 30+ LLM providers compare to the multi-provider support in other Python coding agents?"}
+      ]
+    },
+    {
+      "id": "D",
+      "angle": "Evaluation / skeptic framing",
+      "variants": [
+        {"id": "D1", "question": "What are the pros and cons of Clawcodex versus other open-source Python AI coding assistants?"},
+        {"id": "D2", "question": "Why should a developer use Clawcodex instead of other Python-based AI coding agents? Is it worth switching?"},
+        {"id": "D3", "question": "What is Clawcodex, and what makes it stand out among open-source Python coding agents?"}
+      ]
+    }
+  ]
+}
