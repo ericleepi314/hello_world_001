@@ -71,6 +71,10 @@ def main():
                     continue
                 q["answers"][e] = {k: r.get(k) for k in ("status", "answer", "sources", "error", "final_url",
                                                         "started_at", "duration_s", "logged_in", "screenshot")}
+                shot = Path(r.get("screenshot") or "")
+                # Sub-agents run in throwaway worktrees; keep only screenshots that still exist here.
+                q["answers"][e]["screenshot"] = (str(shot.relative_to(HERE)) if shot.is_file() and
+                                                 shot.is_relative_to(HERE) else None)
                 if r["status"] == "ok":
                     q["answers"][e]["aeo"] = score(r["answer"])
             out["questions"].append(q)
@@ -87,6 +91,9 @@ def render_md(out, engines):
     L = [f"# AEO survey: {out['product']}", "",
          f"**Base question:** {out['base_question']}", "",
          f"Generated {out['generated_at']}" + (" from **mock** engines (self-test, not real answers)" if out["mock"] else ""), ""]
+    if not any(q["answers"][e]["status"] == "ok" for q in out["questions"] for e in engines):
+        L += ["> **No answers collected yet.** See the statuses below; `blocked_network` means the sandbox's "
+              "egress policy refused the engine's host (see README, \"Network access the survey needs\").", ""]
     # Scorecard
     L += ["## Scorecard", "", "| Engine | Answered | Mentions Clawcodex | Says it doesn't know Clawcodex | Other statuses |",
           "| --- | --- | --- | --- | --- |"]

@@ -45,6 +45,10 @@ for g in A B C D; do python3 run_batch.py --agent $g; done
 python3 collect.py              # → results/answers.md
 ```
 
+When running agent-browser by hand (debugging, or `agent-browser --session <name> close`), export
+`AGENT_BROWSER_EXECUTABLE_PATH=/opt/pw-browsers/chromium` first. Without it, agent-browser tries to
+download Chrome, fails, and leaves the session's daemon running. The scripts set this themselves.
+
 Each record has one of these statuses:
 
 | Status | Meaning |
